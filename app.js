@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
 const Listing = require("./models/listings");
+const Path = require("path");
 
 
 async function main(){
@@ -17,18 +18,16 @@ main().then(()=>{
     console.log(error);
 })
 
-app.get("/testListing",async (req,res)=>{
-    let newListing = new Listing({
-        title : "title",
-        description : "description",
-        price : 7800,
-        country : "India",
-        location : "Delhi"
-    })
 
-    await newListing.save();
-    res.send("Listing was saved successfully");
-})
+app.set("view engine","ejs");
+app.set("views",Path.join(__dirname,"/views"));
+
+//Index Route
+app.get("/listings",async (req,res)=>{
+    let allListings = await Listing.find({});
+    res.render("listings/index.ejs",{allListings});
+});
+
 
 
 
