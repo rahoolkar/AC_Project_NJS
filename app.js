@@ -3,6 +3,8 @@ const app = express();
 const mongoose = require('mongoose');
 const Listing = require("./models/listings");
 const Path = require("path");
+const methodOverride = require('method-override');
+const { count } = require("console");
 
 
 async function main(){
@@ -18,6 +20,7 @@ main().then(()=>{
     console.log(error);
 })
 
+app.use(methodOverride('_method'))
 app.use(express.json());
 app.use(express.urlencoded({extended : true}))
 app.set("view engine","ejs");
@@ -47,5 +50,19 @@ app.post("/listings",async (req,res)=>{
     let newListing = new Listing({title,description,image,price,country,location});
     await newListing.save();
     res.redirect("/listings");
+})
+
+//Edit Route
+app.get("/listings/:id/edit",async(req,res)=>{
+    let {id} = req.params;
+    let listing = await Listing.findById(id);
+    res.render("listings/edit.ejs",{listing});
+})
+
+app.put("/listings/:id",async (req,res)=>{
+    let {id} = req.params;
+    let {title,description,price,country,location} = req.body;
+    await Listing.findByIdAndUpdate(id,{title,description,price,country,location});
+    res.redirect(`/listings/${id}`);
 })
 
