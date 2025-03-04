@@ -18,7 +18,7 @@ main().then(()=>{
     console.log(error);
 })
 
-
+app.use(express.urlencoded({extended : true}))
 app.set("view engine","ejs");
 app.set("views",Path.join(__dirname,"/views"));
 
@@ -28,6 +28,10 @@ app.get("/listings",async (req,res)=>{
     res.render("listings/index.ejs",{allListings});
 });
 
-
-
+//Show Route
+app.get("/listings/:id",async (req,res)=>{
+    let {id} = req.params;
+    let listing = await Listing.findById(id);
+    res.render("listings/show.ejs",{listing});
+})
 
