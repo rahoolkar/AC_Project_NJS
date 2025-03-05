@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Listing = require("./models/listings");
 const Path = require("path");
 const methodOverride = require('method-override');
-const { count } = require("console");
+const engine = require('ejs-mate');
 
 
 async function main(){
@@ -20,6 +20,8 @@ main().then(()=>{
     console.log(error);
 })
 
+app.use(express.static(Path.join(__dirname,"/public")))
+app.engine('ejs', engine);
 app.use(methodOverride('_method'))
 app.use(express.json());
 app.use(express.urlencoded({extended : true}))
