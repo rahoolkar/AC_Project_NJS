@@ -6,6 +6,7 @@ const Path = require("path");
 const methodOverride = require('method-override');
 const engine = require('ejs-mate');
 const wrapAsync = require("./utils/wrapAsync.js");
+const myError = require("./utils/myError.js");
 
 async function main(){
     await mongoose.connect('mongodb://127.0.0.1:27017/project');
@@ -18,7 +19,7 @@ main().then(()=>{
     })  
 }).catch((error)=>{
     console.log(error);
-})
+});
 
 app.use(express.static(Path.join(__dirname,"/public")))
 app.engine('ejs', engine);
@@ -44,15 +45,17 @@ app.get("/listings/:id",(wrapAsync(async (req,res)=>{
     let {id} = req.params;
     let listing = await Listing.findById(id);
     res.render("listings/show.ejs",{listing});
-})))
+})));
 
 //Post Route
 app.post("/listings",wrapAsync(async (req,res)=>{
-        let {title,description,price,image="https://www.shutterstock.com/image-vector/image-icon-trendy-flat-style-600nw-643080895.jpg",country,location} = req.body;
-        let newListing = new Listing({title,description,image,price,country,location});
-        await newListing.save();
-        res.redirect("/listings");
-    
+    let data = req.body;
+    if(!data){
+        throw new myError(400,"Please provide valid data");
+    }
+    let newListing = new Listing(data);
+    await newListing.save();
+    res.redirect("/listings");
 }));
 
 //Edit Route
@@ -64,8 +67,11 @@ app.get("/listings/:id/edit",wrapAsync(async(req,res)=>{
 
 app.put("/listings/:id",wrapAsync(async (req,res)=>{
     let {id} = req.params;
-    let {title,description,price,country,location} = req.body;
-    await Listing.findByIdAndUpdate(id,{title,description,price,country,location});
+    let data = req.body;
+    if(!data){
+        throw new myError(400,"Please provide valid data");
+    }
+    await Listing.findByIdAndUpdate(id,data);
     res.redirect(`/listings/${id}`);
 }));
 
@@ -76,7 +82,13 @@ app.delete("/listings/:id",wrapAsync(async (req,res)=>{
     res.redirect("/listings");
 }));
 
+app.all("*",(req,res)=>{
+    throw new myError(404,"Page not found");
+})
+
 //Custom Error Handler
 app.use((err,req,res,next)=>{
-    res.send("Something went wrong");
-})
+    let {status=500 ,message="Out tester are working"} = err;
+    res.status(status).render("error.ejs",{message});
+});
+
