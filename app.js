@@ -7,6 +7,7 @@ const methodOverride = require('method-override');
 const engine = require('ejs-mate');
 const wrapAsync = require("./utils/wrapAsync.js");
 const myError = require("./utils/myError.js");
+const listingJoiSchema = require("./schema.js");
 
 async function main(){
     await mongoose.connect('mongodb://127.0.0.1:27017/project');
@@ -47,12 +48,20 @@ app.get("/listings/:id",(wrapAsync(async (req,res)=>{
     res.render("listings/show.ejs",{listing});
 })));
 
-//Post Route
-app.post("/listings",wrapAsync(async (req,res)=>{
+//middleware for the post route
+const validateSchema = function(req,res,next){
     let data = req.body;
-    if(!data){
+    let result = listingJoiSchema.validate(data);
+    if(result.error){
         throw new myError(400,"Please provide valid data");
+    }else{
+        next();
     }
+}
+
+//Post Route
+app.post("/listings",validateSchema,wrapAsync(async (req,res)=>{
+    let data = req.body;
     let newListing = new Listing(data);
     await newListing.save();
     res.redirect("/listings");
@@ -65,12 +74,9 @@ app.get("/listings/:id/edit",wrapAsync(async(req,res)=>{
     res.render("listings/edit.ejs",{listing});
 }));
 
-app.put("/listings/:id",wrapAsync(async (req,res)=>{
+app.put("/listings/:id",validateSchema,wrapAsync(async (req,res)=>{
     let {id} = req.params;
     let data = req.body;
-    if(!data){
-        throw new myError(400,"Please provide valid data");
-    }
     await Listing.findByIdAndUpdate(id,data);
     res.redirect(`/listings/${id}`);
 }));
