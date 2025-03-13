@@ -42,5 +42,14 @@
                 <button class="btn btn-outline-dark">Submit</button>
             </form>
         </div>
+        <div class="col-8 offset-3 mb-3">
+            <hr>
+            <h3>All Reviews</h3>
+            <ul>
+            <% for(let review of listing.reviews){ %>
+                <li><%= review.comment %>,<%= review.rating %>stars</li>
+            <% } %>
+            </ul>
+         </div>
     </div>        
 </body>
