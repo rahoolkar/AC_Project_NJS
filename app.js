@@ -7,7 +7,7 @@ const methodOverride = require('method-override');
 const engine = require('ejs-mate');
 const wrapAsync = require("./utils/wrapAsync.js");
 const myError = require("./utils/myError.js");
-const listingJoiSchema = require("./schema.js");
+const {listingSchema,reviewSchema} = require("./schema.js");
 const Review = require("./models/review.js");
 
 async function main(){
@@ -52,7 +52,7 @@ app.get("/listings/:id",(wrapAsync(async (req,res)=>{
 //middleware for the post route
 const validateSchema = function(req,res,next){
     let data = req.body;
-    let result = listingJoiSchema.validate(data);
+    let result = listingSchema.validate(data);
     if(result.error){
         throw new myError(400,"Please provide valid data");
     }else{
@@ -90,8 +90,19 @@ app.delete("/listings/:id",wrapAsync(async (req,res)=>{
 }));
 
 //Review Route
+//middleware for the review post route
+const validateReview = function(req,res,next){
+    let data = req.body;
+    let result = reviewSchema.validate(data);
+    if(result.error){
+        throw new myError(400,result.error);
+    }else{
+        next();
+    }
+}
+
 //Post Review Route
-app.post("/listings/:id/reviews",async(req,res)=>{
+app.post("/listings/:id/reviews",validateReview,wrapAsync(async(req,res)=>{
     let {id} = req.params;
     let data = req.body;
     let newReview = new Review(data);
@@ -100,7 +111,7 @@ app.post("/listings/:id/reviews",async(req,res)=>{
     listing.reviews.push(reviewSaved);
     await listing.save();
     res.redirect(`/listings/${id}`);
-})
+}))
 
 app.all("*",(req,res)=>{
     throw new myError(404,"Page not found");
