@@ -8,6 +8,7 @@ const engine = require('ejs-mate');
 const wrapAsync = require("./utils/wrapAsync.js");
 const myError = require("./utils/myError.js");
 const listingJoiSchema = require("./schema.js");
+const Review = require("./models/review.js");
 
 async function main(){
     await mongoose.connect('mongodb://127.0.0.1:27017/project');
@@ -87,6 +88,19 @@ app.delete("/listings/:id",wrapAsync(async (req,res)=>{
     await Listing.findByIdAndDelete(id);
     res.redirect("/listings");
 }));
+
+//Review Route
+//Post Review Route
+app.post("/listings/:id/reviews",async(req,res)=>{
+    let {id} = req.params;
+    let data = req.body;
+    let newReview = new Review(data);
+    let reviewSaved = await newReview.save();
+    let listing = await Listing.findById(id);
+    listing.reviews.push(reviewSaved);
+    await listing.save();
+    res.redirect(`/listings/${id}`);
+})
 
 app.all("*",(req,res)=>{
     throw new myError(404,"Page not found");
