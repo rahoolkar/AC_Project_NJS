@@ -113,6 +113,15 @@ app.post("/listings/:id/reviews",validateReview,wrapAsync(async(req,res)=>{
     res.redirect(`/listings/${id}`);
 }))
 
+//Delete Route 
+app.delete("/listings/:lid/reviews/:rid",wrapAsync(async(req,res)=>{
+    let {lid,rid} = req.params;
+    console.log(req.params);
+    await Review.findByIdAndDelete(rid);
+    await Listing.findByIdAndUpdate(lid,{$pull : {reviews : rid}});
+    res.redirect(`/listings/${lid}`);
+}))
+
 app.all("*",(req,res)=>{
     throw new myError(404,"Page not found");
 })
