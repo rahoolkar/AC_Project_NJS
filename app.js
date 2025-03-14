@@ -7,6 +7,8 @@ const engine = require('ejs-mate');
 const myError = require("./utils/myError.js");
 const listingRouter = require("./routes/listings.js");
 const reviewRouter = require("./routes/review.js");
+const session = require('express-session')
+const cookieParser = require('cookie-parser'); 
 
 async function main(){
     await mongoose.connect('mongodb://127.0.0.1:27017/project');
@@ -28,6 +30,14 @@ app.use(express.json());
 app.use(express.urlencoded({extended : true}))
 app.set("view engine","ejs");
 app.set("views",Path.join(__dirname,"/views"));
+
+const sessionOptions = {
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}
+app.use(session(sessionOptions));
+app.use(cookieParser());  
 
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/listings",listingRouter);
