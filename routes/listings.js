@@ -40,7 +40,7 @@ router.post("/",validateSchema,wrapAsync(async (req,res)=>{
     let data = req.body;
     let newListing = new Listing(data);
     await newListing.save();
-    req.flash('success', 'Flash is back!')
+    req.flash('success', 'New Listing created!')
     res.redirect("/listings");
 }));
 
@@ -48,6 +48,7 @@ router.post("/",validateSchema,wrapAsync(async (req,res)=>{
 router.get("/:id/edit",wrapAsync(async(req,res)=>{
     let {id} = req.params;
     let listing = await Listing.findById(id);
+    req.flash("success","Listing Updated!")
     res.render("listings/edit.ejs",{listing});
 }));
 

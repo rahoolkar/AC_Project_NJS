@@ -26,6 +26,7 @@ router.post("/",validateReview,wrapAsync(async(req,res)=>{
     let listing = await Listing.findById(id);
     listing.reviews.push(reviewSaved);
     await listing.save();
+    req.flash("success","New review created!")
     res.redirect(`/listings/${id}`);
 }))
 

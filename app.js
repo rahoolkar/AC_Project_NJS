@@ -47,7 +47,7 @@ app.use(cookieParser());
 app.use(flash());
 
 app.use((req,res,next)=>{
-    res.locals.flashMsg = req.flash("success");
+    res.locals.successFlashMsg = req.flash("success");
     next();
 })
 
