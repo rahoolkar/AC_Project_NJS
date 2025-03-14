@@ -40,6 +40,7 @@ router.post("/",validateSchema,wrapAsync(async (req,res)=>{
     let data = req.body;
     let newListing = new Listing(data);
     await newListing.save();
+    req.flash('success', 'Flash is back!')
     res.redirect("/listings");
 }));
 

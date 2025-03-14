@@ -9,6 +9,7 @@ const listingRouter = require("./routes/listings.js");
 const reviewRouter = require("./routes/review.js");
 const session = require('express-session')
 const cookieParser = require('cookie-parser'); 
+var flash = require('connect-flash');
 
 async function main(){
     await mongoose.connect('mongodb://127.0.0.1:27017/project');
@@ -36,14 +37,19 @@ const sessionOptions = {
     resave: false,
     saveUninitialized: true,
     cookie: { 
-        secure: true,
         expires : Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge : 7 * 24 * 60 * 60 * 1000,
         httpOnly : true
     }
 }
 app.use(session(sessionOptions));
-app.use(cookieParser());  
+app.use(cookieParser()); 
+app.use(flash());
+
+app.use((req,res,next)=>{
+    res.locals.flashMsg = req.flash("success");
+    next();
+})
 
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/listings",listingRouter);
