@@ -9,7 +9,11 @@ const listingRouter = require("./routes/listings.js");
 const reviewRouter = require("./routes/review.js");
 const session = require('express-session')
 const cookieParser = require('cookie-parser'); 
-var flash = require('connect-flash');
+const flash = require('connect-flash');
+const passport = require("passport");
+const User = require("./models/user.js");
+const LocalStrategy = require("passport-local");
+
 
 async function main(){
     await mongoose.connect('mongodb://127.0.0.1:27017/project');
@@ -45,6 +49,11 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(cookieParser()); 
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res,next)=>{
     res.locals.successFlashMsg = req.flash("success");
@@ -54,6 +63,16 @@ app.use((req,res,next)=>{
 
 app.use("/listings/:id/reviews",reviewRouter);
 app.use("/listings",listingRouter);
+
+app.get("/fakedata",async(req,res)=>{
+    let fakedata = new User({
+        email : "rahul@gmail.com",
+        username : "rahoolkar"
+    })
+
+    let result = await User.register(fakedata,"1234");
+    res.send("data user added");
+})
 
 app.all("*",(req,res)=>{
     throw new myError(404,"Page not found");
