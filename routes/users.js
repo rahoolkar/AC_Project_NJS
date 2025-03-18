@@ -36,7 +36,7 @@ router.post(
     failureFlash: true,
   }),
   wrapAysnc(async (req, res) => {
-    req.flash("success","hi, welcome to wanderlust");
+    req.flash("success","Hi, welcome to WanderLust");
     res.redirect("/listings");
   })
 );

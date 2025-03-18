@@ -4,6 +4,7 @@ const Listing = require("../models/listings");
 const wrapAsync = require("../utils/wrapAsync.js");
 const myError = require("../utils/myError.js");
 const {listingSchema} = require("../schema.js");
+const {isLoggedIn} = require("../middleware.js"); 
 
 
 //middleware for the post route
@@ -24,7 +25,7 @@ router.get("/",wrapAsync(async (req,res)=>{
 }));
 
 //New Route
-router.get("/new",(req,res)=>{
+router.get("/new",isLoggedIn,(req,res)=>{
     res.render("listings/new.ejs");
 });
 
@@ -40,7 +41,7 @@ router.get("/:id",(wrapAsync(async (req,res)=>{
 })));
 
 //Post Route
-router.post("/",validateSchema,wrapAsync(async (req,res)=>{
+router.post("/",isLoggedIn,validateSchema,wrapAsync(async (req,res)=>{
     let data = req.body;
     let newListing = new Listing(data);
     await newListing.save();
@@ -49,7 +50,7 @@ router.post("/",validateSchema,wrapAsync(async (req,res)=>{
 }));
 
 //Edit Route
-router.get("/:id/edit",wrapAsync(async(req,res)=>{
+router.get("/:id/edit",isLoggedIn,wrapAsync(async(req,res)=>{
     let {id} = req.params;
     let listing = await Listing.findById(id);
     if(!listing){
@@ -60,7 +61,7 @@ router.get("/:id/edit",wrapAsync(async(req,res)=>{
     res.render("listings/edit.ejs",{listing});
 }));
 
-router.put("/:id",validateSchema,wrapAsync(async (req,res)=>{
+router.put("/:id",isLoggedIn,validateSchema,wrapAsync(async (req,res)=>{
     let {id} = req.params;
     let data = req.body;
     await Listing.findByIdAndUpdate(id,data);
@@ -68,7 +69,7 @@ router.put("/:id",validateSchema,wrapAsync(async (req,res)=>{
 }));
 
 //Delete Route
-router.delete("/:id",wrapAsync(async (req,res)=>{
+router.delete("/:id",isLoggedIn,wrapAsync(async (req,res)=>{
     let {id} = req.params;
     await Listing.findByIdAndDelete(id);
     req.flash("failure","Listing Deleted!")
