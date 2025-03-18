@@ -3,6 +3,7 @@ const router = express.Router();
 const wrapAysnc = require("../utils/wrapAsync");
 const User = require("../models/user");
 const passport = require("passport");
+const { reviewSchema } = require("../schema");
 
 router.get("/signup", (req, res) => {
   res.render("users/signup.ejs");
@@ -36,9 +37,19 @@ router.post(
     failureFlash: true,
   }),
   wrapAysnc(async (req, res) => {
-    req.flash("success","Hi, welcome to WanderLust");
+    req.flash("success", "Hi, welcome to WanderLust");
     res.redirect("/listings");
   })
 );
+
+router.get("/logout", (req, res, next) => {
+  req.logOut((error) => {
+    if (error) {
+      return next(error);
+    }
+    req.flash("success", "You logged out!");
+    res.redirect("/listings");
+  });
+});
 
 module.exports = router;
