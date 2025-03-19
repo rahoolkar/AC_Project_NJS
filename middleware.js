@@ -1,6 +1,7 @@
 const Listing = require("./models/listings");
+const Review = require("./models/review.js");
 const myError = require("./utils/myError.js");
-const { listingSchema } = require("./schema.js");
+const { listingSchema, reviewSchema } = require("./schema.js");
 
 const isLoggedIn = function (req, res, next) {
   console.log(req.user);
@@ -40,4 +41,32 @@ const validateSchema = function (req, res, next) {
   }
 };
 
-module.exports = { isLoggedIn, saveRedirectUrl, isOwner, validateSchema };
+//middleware for the review post route
+const validateReview = function (req, res, next) {
+  let data = req.body;
+  let result = reviewSchema.validate(data);
+  if (result.error) {
+    throw new myError(400, result.error);
+  } else {
+    next();
+  }
+};
+
+const isAuthor = async function (req, res, next) {
+  let { rid } = req.params;
+  let review = await Review.findById(rid);
+  if (!review.author.equals(req.user)) {
+    req.flash("failure", "You are not the author of this review");
+    return res.redirect(`/listings/${id}`);
+  }
+  next();
+};
+
+module.exports = {
+  isLoggedIn,
+  saveRedirectUrl,
+  isOwner,
+  validateSchema,
+  validateReview,
+  isAuthor,
+};

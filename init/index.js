@@ -17,7 +17,7 @@ main()
 async function init() {
   await Listing.deleteMany({});
   let newData = data.map((listing) => {
-    return { ...listing, owner: "67d8ab5a86ba39dbd2974f01" };
+    return { ...listing, owner: "67db1f6120d0ff544d39d332" };
   });
   await Listing.insertMany(newData);
   console.log("data inserted successfully");
