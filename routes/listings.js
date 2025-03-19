@@ -2,20 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Listing = require("../models/listings");
 const wrapAsync = require("../utils/wrapAsync.js");
-const myError = require("../utils/myError.js");
-const { listingSchema } = require("../schema.js");
-const { isLoggedIn } = require("../middleware.js");
-
-//middleware for the post route
-const validateSchema = function (req, res, next) {
-  let data = req.body;
-  let result = listingSchema.validate(data);
-  if (result.error) {
-    throw new myError(400, "Please provide valid data");
-  } else {
-    next();
-  }
-};
+const { isLoggedIn, isOwner, validateSchema } = require("../middleware.js");
 
 //Index Route
 router.get(
@@ -36,7 +23,9 @@ router.get(
   "/:id",
   wrapAsync(async (req, res) => {
     let { id } = req.params;
-    let listing = await Listing.findById(id).populate("reviews").populate("owner");
+    let listing = await Listing.findById(id)
+      .populate("reviews")
+      .populate("owner");
     if (!listing) {
       req.flash("error", "Listing you requested for doesn't exists");
       res.redirect("/listings");
@@ -65,6 +54,7 @@ router.post(
 router.get(
   "/:id/edit",
   isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     let listing = await Listing.findById(id);
@@ -80,6 +70,7 @@ router.get(
 router.put(
   "/:id",
   isLoggedIn,
+  isOwner,
   validateSchema,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
@@ -93,6 +84,7 @@ router.put(
 router.delete(
   "/:id",
   isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     await Listing.findByIdAndDelete(id);
