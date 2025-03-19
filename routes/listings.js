@@ -3,77 +3,102 @@ const router = express.Router();
 const Listing = require("../models/listings");
 const wrapAsync = require("../utils/wrapAsync.js");
 const myError = require("../utils/myError.js");
-const {listingSchema} = require("../schema.js");
-const {isLoggedIn} = require("../middleware.js"); 
-
+const { listingSchema } = require("../schema.js");
+const { isLoggedIn } = require("../middleware.js");
 
 //middleware for the post route
-const validateSchema = function(req,res,next){
-    let data = req.body;
-    let result = listingSchema.validate(data);
-    if(result.error){
-        throw new myError(400,"Please provide valid data");
-    }else{
-        next();
-    }
-}
+const validateSchema = function (req, res, next) {
+  let data = req.body;
+  let result = listingSchema.validate(data);
+  if (result.error) {
+    throw new myError(400, "Please provide valid data");
+  } else {
+    next();
+  }
+};
 
 //Index Route
-router.get("/",wrapAsync(async (req,res)=>{
+router.get(
+  "/",
+  wrapAsync(async (req, res) => {
     let allListings = await Listing.find({});
-    res.render("listings/index.ejs",{allListings});
-}));
+    res.render("listings/index.ejs", { allListings });
+  })
+);
 
 //New Route
-router.get("/new",isLoggedIn,(req,res)=>{
-    res.render("listings/new.ejs");
+router.get("/new", isLoggedIn, (req, res) => {
+  res.render("listings/new.ejs");
 });
 
 //Show Route
-router.get("/:id",(wrapAsync(async (req,res)=>{
-    let {id} = req.params;
-    let listing = await Listing.findById(id).populate("reviews");
-    if(!listing){
-        req.flash("error","Listing you requested for doesn't exists");
-        res.redirect("/listings");
+router.get(
+  "/:id",
+  wrapAsync(async (req, res) => {
+    let { id } = req.params;
+    let listing = await Listing.findById(id).populate("reviews").populate("owner");
+    if (!listing) {
+      req.flash("error", "Listing you requested for doesn't exists");
+      res.redirect("/listings");
     }
-    res.render("listings/show.ejs",{listing});
-})));
+    res.render("listings/show.ejs", { listing });
+  })
+);
 
 //Post Route
-router.post("/",isLoggedIn,validateSchema,wrapAsync(async (req,res)=>{
+router.post(
+  "/",
+  isLoggedIn,
+  validateSchema,
+  wrapAsync(async (req, res) => {
     let data = req.body;
     let newListing = new Listing(data);
+    console.log(req.user);
+    newListing.owner = req.user;
     await newListing.save();
-    req.flash('success', 'New Listing created!')
+    req.flash("success", "New Listing created!");
     res.redirect("/listings");
-}));
+  })
+);
 
 //Edit Route
-router.get("/:id/edit",isLoggedIn,wrapAsync(async(req,res)=>{
-    let {id} = req.params;
+router.get(
+  "/:id/edit",
+  isLoggedIn,
+  wrapAsync(async (req, res) => {
+    let { id } = req.params;
     let listing = await Listing.findById(id);
-    if(!listing){
-        req.flash("failure","Listing you requested doesn't exists");
-        res.redirect("/listings");
+    if (!listing) {
+      req.flash("failure", "Listing you requested doesn't exists");
+      res.redirect("/listings");
     }
-    req.flash("success","Listing Updated!")
-    res.render("listings/edit.ejs",{listing});
-}));
+    req.flash("success", "Listing Updated!");
+    res.render("listings/edit.ejs", { listing });
+  })
+);
 
-router.put("/:id",isLoggedIn,validateSchema,wrapAsync(async (req,res)=>{
-    let {id} = req.params;
+router.put(
+  "/:id",
+  isLoggedIn,
+  validateSchema,
+  wrapAsync(async (req, res) => {
+    let { id } = req.params;
     let data = req.body;
-    await Listing.findByIdAndUpdate(id,data);
+    await Listing.findByIdAndUpdate(id, data);
     res.redirect(`/listings/${id}`);
-}));
+  })
+);
 
 //Delete Route
-router.delete("/:id",isLoggedIn,wrapAsync(async (req,res)=>{
-    let {id} = req.params;
+router.delete(
+  "/:id",
+  isLoggedIn,
+  wrapAsync(async (req, res) => {
+    let { id } = req.params;
     await Listing.findByIdAndDelete(id);
-    req.flash("failure","Listing Deleted!")
+    req.flash("failure", "Listing Deleted!");
     res.redirect("/listings");
-}));
+  })
+);
 
 module.exports = router;
