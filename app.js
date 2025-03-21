@@ -50,8 +50,6 @@ const sessionOptions = {
   },
 };
 
-console.log(process.env.PASSWORD);
-
 app.use(session(sessionOptions));
 app.use(cookieParser());
 app.use(flash());

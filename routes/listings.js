@@ -19,10 +19,7 @@ const upload = multer({ storage });
 router
   .route("/")
   .get(wrapAsync(indexRoute))
-  .post(upload.single('image'),(req,res)=>{
-    res.send(req.file);
-  })
-  //.post(isLoggedIn,upload.single('image'), wrapAsync(postRoute));
+  .post(isLoggedIn,upload.single('image'), wrapAsync(postRoute));
 
 //New Route
 router.get("/new", isLoggedIn, newRoute);
