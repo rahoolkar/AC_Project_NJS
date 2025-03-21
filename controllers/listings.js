@@ -15,7 +15,7 @@ module.exports.showRoute = async (req, res) => {
     .populate({ path: "reviews", populate: { path: "author" } })
     .populate("owner");
   if (!listing) {
-    req.flash("error", "Listing you requested for doesn't exists");
+    req.flash("failure", "Listing you requested for doesn't exists");
     res.redirect("/listings");
   }
   res.render("listings/show.ejs", { listing });
@@ -36,7 +36,7 @@ module.exports.editRoute = async (req, res) => {
   let listing = await Listing.findById(id);
   if (!listing) {
     req.flash("failure", "Listing you requested doesn't exists");
-    res.redirect("/listings");
+    return res.redirect("/listings");
   }
   req.flash("success", "Listing Updated!");
   res.render("listings/edit.ejs", { listing });

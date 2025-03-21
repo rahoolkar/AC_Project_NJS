@@ -21,8 +21,8 @@ const saveRedirectUrl = function (req, res, next) {
 
 const isOwner = async function (req, res, next) {
   let { id } = req.params;
-  let listing = await Listing.findById(id);
-  if (!listing.owner.equals(res.locals.currUser)) {
+  let listing = await Listing.findById(id).populate("owner");
+  if (listing.owner.equals(req.user) == false) {
     req.flash("failure", "You don't have permission to perform this opertion");
     return res.redirect(`/listings/${id}`);
   }
