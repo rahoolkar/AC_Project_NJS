@@ -23,8 +23,8 @@ module.exports.showRoute = async (req, res) => {
 
 module.exports.postRoute = async (req, res) => {
   let data = req.body;
+  console.log(req.file);
   let newListing = new Listing(data);
-  console.log(req.user);
   newListing.owner = req.user;
   await newListing.save();
   req.flash("success", "New Listing created!");

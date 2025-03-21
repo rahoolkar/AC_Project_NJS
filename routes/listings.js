@@ -11,12 +11,14 @@ const {
   deleteRoute,
   editRoute,
 } = require("../controllers/listings.js");
+const multer  = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 //router.route
 router
   .route("/")
   .get(wrapAsync(indexRoute))
-  .post(isLoggedIn, validateSchema, wrapAsync(postRoute));
+  .post(isLoggedIn,upload.single('image'), wrapAsync(postRoute));
 
 //New Route
 router.get("/new", isLoggedIn, newRoute);
