@@ -12,13 +12,17 @@ const {
   editRoute,
 } = require("../controllers/listings.js");
 const multer  = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const {storage} = require("../cloudConfig.js");
+const upload = multer({ storage });
 
 //router.route
 router
   .route("/")
   .get(wrapAsync(indexRoute))
-  .post(isLoggedIn,upload.single('image'), wrapAsync(postRoute));
+  .post(upload.single('image'),(req,res)=>{
+    res.send(req.file);
+  })
+  //.post(isLoggedIn,upload.single('image'), wrapAsync(postRoute));
 
 //New Route
 router.get("/new", isLoggedIn, newRoute);

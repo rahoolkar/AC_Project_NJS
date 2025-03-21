@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -48,6 +49,8 @@ const sessionOptions = {
     httpOnly: true,
   },
 };
+
+console.log(process.env.PASSWORD);
 
 app.use(session(sessionOptions));
 app.use(cookieParser());
