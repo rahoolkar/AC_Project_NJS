@@ -2,27 +2,47 @@ const express = require("express");
 const router = express.Router();
 const wrapAsync = require("../utils/wrapAsync.js");
 const { isLoggedIn, isOwner, validateSchema } = require("../middleware.js");
-const {indexRoute,newRoute,showRoute,postRoute,updateRoute,deleteRoute,editRoute} = require("../controllers/listings.js");
+const {
+  indexRoute,
+  newRoute,
+  showRoute,
+  postRoute,
+  updateRoute,
+  deleteRoute,
+  editRoute,
+} = require("../controllers/listings.js");
 
-//Index Route
-router.get("/", wrapAsync(indexRoute));
+//router.route
+router
+  .route("/")
+  .get(wrapAsync(indexRoute))
+  .post(isLoggedIn, validateSchema, wrapAsync(postRoute));
 
 //New Route
-router.get("/new", isLoggedIn,newRoute);
+router.get("/new", isLoggedIn, newRoute);
+
+router
+  .route("/:id")
+  .get(wrapAsync(showRoute))
+  .put(isLoggedIn, isOwner, validateSchema, wrapAsync(updateRoute))
+  .delete(isLoggedIn, isOwner, wrapAsync(deleteRoute));
+
+//Index Route
+//router.get("/", wrapAsync(indexRoute));
 
 //Show Route
-router.get("/:id", wrapAsync(showRoute));
+// router.get("/:id", wrapAsync(showRoute));
 
 //Post Route
-router.post("/", isLoggedIn, validateSchema, wrapAsync(postRoute));
+// router.post("/", isLoggedIn, validateSchema, wrapAsync(postRoute));
 
 //Edit Route
 router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(editRoute));
 
 //Update Route
-router.put("/:id", isLoggedIn, isOwner, validateSchema, wrapAsync(updateRoute));
+// router.put("/:id", isLoggedIn, isOwner, validateSchema, wrapAsync(updateRoute));
 
 //Delete Route
-router.delete("/:id", isLoggedIn, isOwner, wrapAsync(deleteRoute));
+// router.delete("/:id", isLoggedIn, isOwner, wrapAsync(deleteRoute));
 
 module.exports = router;

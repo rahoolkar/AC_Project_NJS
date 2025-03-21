@@ -46,6 +46,7 @@ module.exports.updateRoute = async (req, res) => {
   let { id } = req.params;
   let data = req.body;
   await Listing.findByIdAndUpdate(id, data);
+  req.flash("success","Listing Updated!");
   res.redirect(`/listings/${id}`);
 };
 
