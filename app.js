@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -15,6 +15,7 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const User = require("./models/user.js");
 const LocalStrategy = require("passport-local");
+const Listing = require("./models/listings.js");
 
 async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/project");
@@ -64,6 +65,12 @@ app.use((req, res, next) => {
   res.locals.failureFlashMsg = req.flash("failure");
   res.locals.currUser = req.user;
   next();
+});
+
+app.get("/search", async (req, res) => {
+  let { q } = req.query;
+  let allListings = await Listing.find({ $or: [{ country: q }, { location: q }] });
+  res.render("search.ejs",{allListings,q});
 });
 
 app.use("/", userRouter);

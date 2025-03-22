@@ -84,11 +84,13 @@
 
             <div class="tax-toggle">
                 <div class="form-check-reverse form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" checked>
                     <label class="form-check-label" for="flexSwitchCheckChecked">Display price after taxes</label>
                 </div>
             </div>
         </div>
+
+        <p><b>Over <%= allListings.length.toLocaleString() %> places in <%= q %></b></p>
         <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
             <% for(let listing of allListings){ %>
                 <a href="/listings/<%= listing._id %>" class="listing-link">
@@ -108,7 +110,6 @@
                 <% } %>
         </div>
     </body>
-
     <script>
         let taxSwitch = document.getElementById("flexSwitchCheckChecked");
         taxSwitch.addEventListener("click", () => {
