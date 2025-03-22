@@ -23,7 +23,7 @@ module.exports.showRoute = async (req, res) => {
 
 module.exports.postRoute = async (req, res) => {
   let data = req.body;
-  let {path,filename} = req.file;
+  let { path, filename } = req.file;
   let newListing = new Listing(data);
   newListing.owner = req.user;
   newListing.image.url = path;
@@ -47,8 +47,14 @@ module.exports.editRoute = async (req, res) => {
 module.exports.updateRoute = async (req, res) => {
   let { id } = req.params;
   let data = req.body;
-  await Listing.findByIdAndUpdate(id, data);
-  req.flash("success","Listing Updated!");
+  let listing = await Listing.findByIdAndUpdate(id, data);
+  if (typeof req.file !== "undefined") {
+    let { path, filename } = req.file;
+    listing.image.url = path;
+    listing.image.filename = filename;
+    await listing.save();
+  }
+  req.flash("success", "Listing Updated!");
   res.redirect(`/listings/${id}`);
 };
 

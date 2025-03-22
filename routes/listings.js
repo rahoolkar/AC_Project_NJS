@@ -11,15 +11,20 @@ const {
   deleteRoute,
   editRoute,
 } = require("../controllers/listings.js");
-const multer  = require('multer');
-const {storage} = require("../cloudConfig.js");
+const multer = require("multer");
+const { storage } = require("../cloudConfig.js");
 const upload = multer({ storage });
 
 //router.route
 router
   .route("/")
   .get(wrapAsync(indexRoute))
-  .post(isLoggedIn,upload.single('image'), wrapAsync(postRoute));
+  .post(
+    isLoggedIn,
+    upload.single("image"),
+    validateSchema,
+    wrapAsync(postRoute)
+  );
 
 //New Route
 router.get("/new", isLoggedIn, newRoute);
@@ -27,7 +32,12 @@ router.get("/new", isLoggedIn, newRoute);
 router
   .route("/:id")
   .get(wrapAsync(showRoute))
-  .put(isLoggedIn, isOwner, validateSchema, wrapAsync(updateRoute))
+  .put(
+    isLoggedIn,
+    isOwner,
+    upload.single("image"),//validateSchema
+    wrapAsync(updateRoute)
+  )
   .delete(isLoggedIn, isOwner, wrapAsync(deleteRoute));
 
 //Index Route
